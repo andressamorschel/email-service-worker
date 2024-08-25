@@ -1,9 +1,11 @@
 import * as cdk from 'aws-cdk-lib';
 import * as sqs from "aws-cdk-lib/aws-sqs";
 import { Construct } from 'constructs';
-import { Runtime } from "aws-cdk-lib/aws-lambda";
+import { Code, Runtime } from "aws-cdk-lib/aws-lambda";
 import { SqsEventSource } from "aws-cdk-lib/aws-lambda-event-sources";
-import { NodejsFunction, OutputFormat } from "aws-cdk-lib/aws-lambda-nodejs";
+import { NodejsFunction } from "aws-cdk-lib/aws-lambda-nodejs";
+// import path from 'path';
+import * as path from 'path';
 
 export class EmailNotificationWorkerStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -13,12 +15,13 @@ export class EmailNotificationWorkerStack extends cdk.Stack {
       queueName: "email-notification-queue",
     });
 
+    console.log("hello! " + __dirname);
+    console.log("hello 2! " + path);
+
     const worker = new NodejsFunction(this, "EmailNotificationWorker", {
       runtime: Runtime.NODEJS_20_X,
-      entry: "src/index.ts",
-      bundling: {
-        format: OutputFormat.ESM,
-      }
+      entry: path.join(__dirname, `/../../src/index.ts`),
+      handler: "handler",
     });
 
     worker.addEventSource(new SqsEventSource(queue));
